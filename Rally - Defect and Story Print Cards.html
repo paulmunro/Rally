@@ -125,7 +125,8 @@
 								'</div>' +
                                 '</div>';
         
-                if ((cardNum + 1) % 4 === 0) {
+                // Page break every %x cards
+				if ((cardNum + 1) % 4 === 0) {
                     theMarkup = theMarkup + '<div class=pb></div>';
                 } else if (cardNum === totalCards - 1) {
                     theMarkup = theMarkup + '<div class=cb>&nbsp;</div>';
