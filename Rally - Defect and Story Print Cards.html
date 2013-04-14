@@ -7,14 +7,11 @@
     <meta name="Name" content="App: Print Story Cards"/>
     <meta name="Version" content="2012.02.21"/>
     <meta name="Vendor" content="Rally Software"/>
-	
-    <!-- Uncomment to use in Rally -->
-	<!-- <script type="text/javascript" src="/apps/1.29/sdk.js"></script>-->
-	<!-- Uncomment to use on it's own -->
+    <!--<script type="text/javascript" src="/apps/1.29/sdk.js"></script>-->
 	<script type="text/javascript" src="https://rally1.rallydev.com/apps/1.29/sdk.js?debug=true"></script>
 
 
-    <script type="text/javascript">
+ <script type="text/javascript">
     var MAX_NAME_LEN = 115;
         var APP_TYPE = "";
         var CARD_TYPE = "";
@@ -74,8 +71,13 @@
 						}
 			
 						description = data[i].Description;
-						release = data[i].Release.Name;
-			
+						
+						if(data[i].Release){
+							release = data[i].Release.Name;
+						}
+						else {
+							release = "Not Specified"
+						}
 						theMarkup = createMarkup(i, data.length, name, ownerText, ownerClass, description,
 								storyId, taskId, estimate, release);
 			
