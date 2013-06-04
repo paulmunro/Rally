@@ -57,7 +57,7 @@ function drawChart(resultsMap) {
 
     var sumPersonPoints = 0;
     var sumHourPoints = 0;
-  var count = 0;
+	var count = 0;
     //Loop through the results and add up the points
 	for (var key in resultsMap) {
         if (key != "errors" && key != "warnings") {
@@ -87,8 +87,25 @@ function drawChart(resultsMap) {
 		count++;
 	}
 
-    chart = new EJSC.Chart("chart_div", {
+    var averageHours = (sumHourPoints / count).toFixed(3);
+    var averagePerson = (sumPersonPoints / count).toFixed(3);
+	
+    var PERSON_SERIES_TITLE = "Points per Person";
+	var HOUR_SERIES_TITLE = "Hours per Point";
+    var PERSON_TREND_LINE_TITLE = "Points per Person Trend";
+	var HOUR_TREND_LINE_TITLE = "Hours per Point";
+	var HOUR_COLOR = "#CC0000";
+	var PERSON_COLOR = "#00BB00";
+	
+	document.getElementById("average_div").innerHTML = "<strong>Average Productivity Rates for the last " +
+            count + " iterations:</strong>" +
+			"<div style=color:" + HOUR_COLOR + ">&nbsp;&nbsp;&nbsp;" + averageHours + " Hours/" + ESTIMATION_UNIT + " (less is better)</div>" +
+			"<div style=color:" + PERSON_COLOR + ">&nbsp;&nbsp;&nbsp;" + averagePerson + " " + ESTIMATION_UNIT + "/Person" + " (more is better)</div>";
+
+	
+	chart = new EJSC.Chart("chart_div", {
         show_legend: true,
+        legend_state: "minimized",
         show_titlebar: false,
         allow_zoom: false,
         axis_bottom: {
@@ -102,23 +119,8 @@ function drawChart(resultsMap) {
             caption: "Points"
         }
     });
-
-    var averageHours = (sumHourPoints / count).toFixed(3);
-    var averagePerson = (sumPersonPoints / count).toFixed(3);
 	
-    document.getElementById("average_div").innerHTML = "<strong>Average Productivity Rate for last " +
-            count + " non-zero iterations:</strong>&nbsp;&nbsp;&nbsp;" 
-			+ averageHours + " Hours/" + ESTIMATION_UNIT 
-			+ "&nbsp;&nbsp;&nbsp;" + averagePerson + " " + ESTIMATION_UNIT + "/Person";
-
-    var PERSON_SERIES_TITLE = "Points per Person";
-	var HOUR_SERIES_TITLE = "Hours per Point";
-    var PERSON_TREND_LINE_TITLE = "Points per Person Trend";
-	var HOUR_TREND_LINE_TITLE = "Hours per Point";
-	var HOUR_COLOR = "#00BB00";
-	var PERSON_COLOR = "#CC0000";
-	
-    var personSeries = new EJSC.BarSeries(
+	var personSeries = new EJSC.BarSeries(
             new EJSC.ArrayDataHandler(PointsPerPersonSeries),
             {
                 title: PERSON_SERIES_TITLE,
