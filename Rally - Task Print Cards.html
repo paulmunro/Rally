@@ -5,8 +5,8 @@
 <head>
     <title>Print Task Cards</title>
     <meta name="Name" content="App: Print Task Cards"/>
-    <meta name="Version" content="2012.02.21"/>
-    <meta name="Vendor" content="Rally Software"/>
+    <meta name="Version" content="2013.07.09"/>
+    <meta name="Vendor" content="Paul Munro"/>
     <!--<script type="text/javascript" src="/apps/1.29/sdk.js"></script>-->
 	<script type="text/javascript" src="https://rally1.rallydev.com/apps/1.29/sdk.js?debug=true"></script>
 
@@ -17,6 +17,7 @@
         
         function PrintTaskCards(rallyDataSource) {
             var iterationDropdown;
+			var storyDropdown;
         
             function displayCards(results) {
                 var estimate, loginName, ownerClass, storyId, taskId, description,
@@ -25,6 +26,11 @@
                 userTable = buildUserTable(results.users);
         
                 data = results[CARD_TYPE];
+				if(data.length == 0 )
+				{
+					dojo.byId("cards").innerHTML = "No Results";
+					return;
+				}
         
                 for (i = 0; i < data.length; i++) {
                     name = data[i].Name;
@@ -134,14 +140,45 @@
                 }
             }
         
-            function runQuery() {
-                dojo.empty(dojo.byId("cards"));
+            function OnIterationChanged(dropdown, eventArgs) {
+				if(iterationDropdown.getDisplayedValue()!="")
+				{
+					//Blank out the story field.
+					storyDropdown.setDisplayedValue("");
+				}
+				else
+				{
+					return;
+				}
+				dojo.empty(dojo.byId("cards"));
                 var queryArray = [];
-        
+				var query = '(Iteration.Name contains "' + iterationDropdown.getSelectedName() + '")';        
+				doQuery(query, displayCards);
+            }
+			
+			function OnStoryChanged(dropdown, eventArgs) {
+				if(storyDropdown.getDisplayedValue() != "")
+				{
+					//Blank out the iteration field
+					iterationDropdown.setDisplayedValue("");
+				}
+				else
+				{
+					return;
+				}
+
+				dojo.empty(dojo.byId("cards"));
+                var	query = '(WorkProduct.FormattedID = "' + eventArgs.displayedValue + '")';
+				doQuery(query, displayCards);
+            }
+			
+			function doQuery(query, callback)
+			{
+				var queryArray = [];				
                 queryArray[0] = {
                     key: CARD_TYPE,
                     type: CARD_TYPE,
-                    query: '(Iteration.Name contains "' + iterationDropdown.getSelectedName() + '")',
+                    query: query,
                     fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,Discipline',
                     order: 'Rank'
                 };
@@ -150,8 +187,8 @@
                     type: 'users',
                     fetch: 'UserName,ObjectID,DisplayName'
                 };
-                rallyDataSource.findAll(queryArray, displayCards);
-            }
+                rallyDataSource.findAll(queryArray, callback);
+			}
         
             function getStyleSheet() {
                 var styleSheet;
@@ -185,12 +222,31 @@
                 printWindow.print();
                 return false;
             }
+			
+			function onDataRetrieved(a, eventArgs) {
+			   //Add an "All" option
+			   var all = {};
+			   all[eventArgs.displayValueProperty] = "";
+			   all[eventArgs.valueProperty] = "";
+			   eventArgs.items.unshift(all);
+			}
         
             this.display = function() {
                 iterationDropdown = new rally.sdk.ui.IterationDropdown({}, rallyDataSource);
-                iterationDropdown.display("iterationDropdown", runQuery);
-        
-                var config = {
+				iterationDropdown.addEventListener("onDataRetrieved",onDataRetrieved);
+                iterationDropdown.display("iterationDropdown", OnIterationChanged);
+			
+				var storyConfig = {
+					type : "hierarchicalrequirement",
+					attribute: "FormattedID",
+					label: "Story",
+					rememberSelection : "false",
+				};
+				storyDropdown = new rally.sdk.ui.ObjectDropdown(storyConfig, rallyDataSource);
+				storyDropdown.addEventListener("onDataRetrieved",onDataRetrieved);
+				storyDropdown.display("storyDropdown", OnStoryChanged);
+                
+				var config = {
                     text: "Print " + APP_TYPE + " Cards",
                     value: "myValue"
                 };
@@ -214,6 +270,7 @@
         }
 
         #buttonDiv,
+		#storyDropdown,
         #iterationDropdown {
             display: inline;
         }
@@ -369,7 +426,9 @@
 <body>
 <div style="float:right" id="help"></div>
 <div id="interface">
+	<h2>Select either iteration or enter an individual story.</h2>
     <div id="iterationDropdown"></div>
+	<div id="storyDropdown"></div>
     <div id="buttonDiv"></div>
 </div>
 <div id="printSection">
