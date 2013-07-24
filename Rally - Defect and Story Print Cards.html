@@ -2,10 +2,10 @@
 <!-- Copyright (c) 2011  Rally Software Development Corp.  All rights reserved -->
 <html>
 <head>
-    <title>Print Story and Defect Cards</title>
-    <meta name="Name" content="App: Print Story Cards"/>
-    <meta name="Version" content="2012.02.21"/>
-    <meta name="Vendor" content="Rally Software"/>
+    <title>Print Task Cards</title>
+    <meta name="Name" content="App: Print Task Cards"/>
+    <meta name="Version" content="2013.07.09"/>
+    <meta name="Vendor" content="Paul Munro"/>
     <!--<script type="text/javascript" src="/apps/1.29/sdk.js"></script>-->
 	<script type="text/javascript" src="https://rally1.rallydev.com/apps/1.29/sdk.js?debug=true"></script>
 
@@ -19,12 +19,9 @@
 		CARDTYPES[1] = "defect";
 		CARDTYPES[2] = "testset";
         function PrintTaskCards(rallyDataSource) {
-            var iterationDropdown;	
-			
-            function printAllCards() {
-					runQuery(CARDTYPES.length);
-			}
-        
+            var iterationDropdown;
+            var storyDropdown;
+			       
             function displayCards(results) {
                 var estimate, loginName, ownerClass, storyId, taskId, description,
                         i, name, theMarkup, data, userTable, ownerText, iCardCount, release;
@@ -34,7 +31,12 @@
 				for(iCardCount=0; iCardCount<CARDTYPES.length; iCardCount++) 
 				{
 					CARD_TYPE = CARDTYPES[iCardCount];
-					data = results[CARD_TYPE]; 
+					data = results[CARD_TYPE];
+
+					if (data.length == 0 && iCardCount==CARDTYPES.length) {
+					    dojo.byId("cards").innerHTML = "No Results";
+					    return;
+					}
 			
 					for (i = 0; i < data.length; i++) {
 						name = data[i].Name;
@@ -58,6 +60,13 @@
 						} else {
 							storyId = data[i].WorkProduct.FormattedID;
 							taskId = results.tasks[i].FormattedID;
+						}
+
+						if (CARD_TYPE === 'defect') {
+						    taskId = "";
+						    discipline = "defect"
+						} else {
+						    discipline = (results.tasks[i].Discipline === null) ? "" : results.tasks[i].Discipline
 						}
 			
 						if (data[i].PlanEstimate) {
@@ -149,8 +158,44 @@
                     dojo.forEach(dojo.query("." + ownerName), showOwnerImage);
                 }
             }
+
+            function onDataRetrieved(a, eventArgs) {
+                //Add an "All" option
+                var all = {};
+                all[eventArgs.displayValueProperty] = "";
+                all[eventArgs.valueProperty] = "";
+                eventArgs.items.unshift(all);
+            }
+
+            function OnIterationChanged(dropdown, eventArgs) {
+                if (iterationDropdown.getDisplayedValue() != "") {
+                    //Blank out the story field.
+                    storyDropdown.setDisplayedValue("");
+                }
+                else {
+                    return;
+                }
+                dojo.empty(dojo.byId("cards"));
+                var queryArray = [];
+                var query = '(Iteration.Name contains "' + iterationDropdown.getSelectedName() + '")';
+                runQuery(query);
+            }
+
+            function OnStoryChanged(dropdown, eventArgs) {
+                if (storyDropdown.getDisplayedValue() != "") {
+                    //Blank out the iteration field
+                    iterationDropdown.setDisplayedValue("");
+                }
+                else {
+                    return;
+                }
+
+                dojo.empty(dojo.byId("cards"));
+                var query = '(FormattedID = "' + eventArgs.displayedValue + '")';
+                runQuery(query);
+            }
         
-            function runQuery(iCardCount) {
+            function runQuery(query) {
                 dojo.empty(dojo.byId("cards"));
                 var queryArray = [];
 					queryArray[0] = {
@@ -159,18 +204,19 @@
 						fetch: 'UserName,ObjectID,DisplayName'
 					};
 					var i = 0;
-					for(i=0; i<iCardCount; i++)
+					for (i = 0; i < CARDTYPES.length; i++)
 					{
 						queryArray[i+1] = {
 							key: CARDTYPES[i],
 							type: CARDTYPES[i],
-							query: '(Iteration.Name contains "' + iterationDropdown.getSelectedName() + '")',
-							fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,PlanEstimate,Release',
+							query: query,
+							fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,Discipline,Release',
 							order: 'Rank'
 						};
 					}
 					
-                rallyDataSource.findAll(queryArray, displayCards);
+                    // fetch the results and call the display function.
+					rallyDataSource.findAll(queryArray, displayCards);
             }
         
             function getStyleSheet() {
@@ -208,8 +254,19 @@
         
             this.display = function() {
                 iterationDropdown = new rally.sdk.ui.IterationDropdown({}, rallyDataSource);
-                //iterationDropdown.display("iterationDropdown", runQuery);
-				iterationDropdown.display("iterationDropdown", printAllCards);
+				iterationDropdown.addEventListener("onDataRetrieved",onDataRetrieved);
+                iterationDropdown.display("iterationDropdown", OnIterationChanged);
+
+                var storyConfig = {
+                    type: "hierarchicalrequirement",
+                    attribute: "FormattedID",
+                    label: "Story",
+                    rememberSelection: "false",
+                };
+                storyDropdown = new rally.sdk.ui.ObjectDropdown(storyConfig, rallyDataSource);
+                storyDropdown.addEventListener("onDataRetrieved", onDataRetrieved);
+                storyDropdown.display("storyDropdown", OnStoryChanged);
+
                 var config = {
                     text: "Print " + APP_TYPE + " Cards",
                     value: "myValue"
@@ -234,6 +291,7 @@
         }
 
         #buttonDiv,
+        #storyDropdown,
         #iterationDropdown {
             display: inline;
         }
@@ -392,7 +450,9 @@
 <body>
 <div style="float:right" id="help"></div>
 <div id="interface">
+    <h2>Select either iteration or enter an individual story.</h2>
     <div id="iterationDropdown"></div>
+    <div id="storyDropdown"></div>
     <div id="buttonDiv"></div>
 </div>
 <div id="printSection">
