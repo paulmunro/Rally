@@ -18,12 +18,11 @@
 		CARDTYPES[0] = "tasks";
 		CARDTYPES[1] = "defect";
         function PrintTaskCards(rallyDataSource) {
-            var iterationDropdown;
-			var storyDropdown;
+            var iterationDropdown, storyDropdown;
         
             function displayCards(results) {
                 var estimate, loginName, ownerClass, storyId, taskId, description,
-                        i, name, theMarkup, data, userTable, ownerText, discipline;
+                        i, name, theMarkup, data, userTable, ownerText, discipline, iCardCount;
         
                 userTable = buildUserTable(results.users);
 
@@ -32,7 +31,7 @@
                     CARD_TYPE = CARDTYPES[iCardCount];
                     data = results[CARD_TYPE];
 
-                    if (data.length == 0 && iCardCount==CARDTYPES.length) {
+                    if (data.length === 0 && iCardCount===CARDTYPES.length) {
                         dojo.byId("cards").innerHTML = "No Results";
                         return;
                     }
@@ -56,11 +55,11 @@
                         if (CARD_TYPE === 'defect') {
                             storyId = data[i].FormattedID;
                             taskId = "";
-                            discipline = "defect"
+                            discipline = "defect";
                         } else {
                             storyId = data[i].WorkProduct.FormattedID;
                             taskId = results.tasks[i].FormattedID;
-                            discipline = (results.tasks[i].Discipline === null) ? "" : results.tasks[i].Discipline
+                            discipline = (results.tasks[i].Discipline === null) ? "" : results.tasks[i].Discipline;
                         }
 
                         if (data[i].PlanEstimate) {
