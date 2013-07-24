@@ -1,4 +1,3 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <!-- Copyright (c) 2011  Rally Software Development Corp.  All rights reserved -->
 <html>
@@ -18,25 +17,24 @@
 		var CARDTYPES = [];
 		CARDTYPES[0] = "HierarchicalRequirement";
 		CARDTYPES[1] = "defect";
-		CARDTYPES[2] = "testset";        
+		CARDTYPES[2] = "testset";
         function PrintTaskCards(rallyDataSource) {
-            var iterationDropdown;
+            var iterationDropdown;	
 			
-			
-			function printAllCards(){
+            function printAllCards() {
 					runQuery(CARDTYPES.length);
 			}
         
             function displayCards(results) {
                 var estimate, loginName, ownerClass, storyId, taskId, description,
-                        i, name, theMarkup, data, userTable, ownerText, iCardCount,release;
+                        i, name, theMarkup, data, userTable, ownerText, iCardCount, release;
         
                 userTable = buildUserTable(results.users);
 				
-				for(iCardCount=0; iCardCount<CARDTYPES.length;iCardCount++)
+				for(iCardCount=0; iCardCount<CARDTYPES.length; iCardCount++) 
 				{
 					CARD_TYPE = CARDTYPES[iCardCount];
-					data = results[CARD_TYPE];
+					data = results[CARD_TYPE]; 
 			
 					for (i = 0; i < data.length; i++) {
 						name = data[i].Name;
@@ -76,7 +74,7 @@
 							release = data[i].Release.Name;
 						}
 						else {
-							release = "Not Specified"
+						    release = "Not Specified";
 						}
 						theMarkup = createMarkup(i, data.length, name, ownerText, ownerClass, description,
 								storyId, taskId, estimate, release);
@@ -221,7 +219,7 @@
             };
         }
 
-    </script>
+ </script>
     <style type="text/css" title="printCards">
             /* PLEASE LEAVE THIS STYLESHEET INLINE SINCE TITLE IS NECESSARY */
         @media print {
@@ -384,7 +382,7 @@
                     '__PROJECT_SCOPING_UP__',
                     '__PROJECT_SCOPING_DOWN__');
             var printTaskCards = new PrintTaskCards(rallyDataSource);
-            printTaskCards.display(dojo.body());
+            printTaskCards.display(dojo.body());           
         }
 
         rally.addOnLoad(onLoad);
