@@ -24,18 +24,18 @@
             function SetCardTypes(checkbox) {
                 //Add remove defects from the card list.
                 var index = CARDTYPES.indexOf("defect");
-                if (cbIncludeDefects.checked && index === -1) {
+                if (cbIncludeDefects.getChecked() && index === -1) {
                     CARDTYPES.push("defect");
                 } 
-                else if (!cbIncludeDefects.check && index > -1) {
+                else if (!cbIncludeDefects.getChecked() && index > -1) {
                         CARDTYPES.splice(index, 1);
                 }
 
                 /*index = CARDTYPES.indexOf("testset");
-                if (testsetCheckbox.checked && index == -1) {
+                if (testsetCheckbox.getChecked() && index == -1) {
                     CARDTYPES.push("testset");
                 }
-                else if (!testsetCheckbox.check && index > -1) {
+                else if (!testsetCheckbox.getChecked() && index > -1) {
                     CARDTYPES.splice(index, 1);
                 }*/
 
@@ -307,6 +307,7 @@
                 };
                 cbIncludeDefects = new rally.sdk.ui.basic.CheckBox(defectConfig);
                 cbIncludeDefects.display("showDefectsCB", SetCardTypes);
+                cbIncludeDefects.setChecked(true);
 
                 var config = {
                     text: "Print " + APP_TYPE + " Cards",
