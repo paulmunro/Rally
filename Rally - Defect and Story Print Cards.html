@@ -93,7 +93,7 @@
 						} else if (data[i].Estimate) {
 							estimate = data[i].Estimate;
 						} else {
-							estimate = "None";
+							estimate = "0";
 						}
 			
 						description = data[i].Description;
@@ -236,7 +236,7 @@
 						key: CARDTYPES[i],
 						type: CARDTYPES[i],
 						query: query,
-						fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,Discipline,Release',
+						fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,PlanEstimate,Estimate,ObjectID,Description,UserName,Discipline,Release',
 						order: 'Rank'
 					};
 				}
