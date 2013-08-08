@@ -53,8 +53,8 @@
                         }
 
                         if (CARD_TYPE === 'defect') {
-                            storyId = data[i].FormattedID;
-                            taskId = "";
+                            storyId = data[i].Requirement.FormattedID;
+                            taskId = data[i].FormattedID;
                             discipline = "defect";
                         } else {
                             storyId = data[i].WorkProduct.FormattedID;
@@ -195,7 +195,7 @@
 				        key: CARDTYPES[i],
 				        type: CARDTYPES[i],
 				        query: query,
-				        fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,PlanEstimate,Discipline,Release',
+				        fetch: 'Name,Iteration,WorkProduct,Owner,FormattedID,Estimate,ObjectID,Description,UserName,PlanEstimate,Discipline,Release,Requirement',
 				        order: 'Rank'
 				    };
 				}
